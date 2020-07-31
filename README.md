@@ -4,6 +4,8 @@
 At the beginning "Background" section made me really confuse and brought questions to me, but the problem by itself is clear and reasoable to do. 
 To solve this problem I decided to use ADO.NET over EF, because I wasn't sure if they are going to provide the connection string, and this way is easier and faster to pull data.
 
+Just make sure either enter connection string in "appsettings.json" or use fir end point to set it.
+
 I created multiple endpoints:
 
 1) SetConnectionString => this end point set the connection string if it is not set on configuration. This method just return 200 if connection was successful. 
@@ -34,4 +36,6 @@ for sure, I will prepare it for next challenge to show.
 q) Can we follow foreign keys to display values?
 since easily we can get information about each table schema, like each column type, so we can find the foreign key and based on that run more query in deeper level. 
 
+Thanks for your time.
 
+Mani Jalilian
