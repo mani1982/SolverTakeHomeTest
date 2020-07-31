@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace SolverTakeHomeTest.Services
 {
-    public class Services : Iservices
+    public class Services : IServices
     {
 
         private readonly IConfiguration _configuration;
@@ -17,6 +17,55 @@ namespace SolverTakeHomeTest.Services
         public Services(IConfiguration configuration)
         {
             _configuration = configuration;
+        }
+
+        private static string ConnectionString { get; set; }
+
+
+        public void SetConnectionString(string connectionString)
+        {
+            using SqlConnection connection = new SqlConnection(connectionString.ToString());
+            try
+            {
+                connection.Open();
+                ConnectionString = connectionString;
+            }
+            catch (Exception e)
+            {
+                throw new Exception("Connection string is not correct or cannot connect to DB server");
+            }
+        }
+
+        public List<string> ListOfTablesByConnectionString(string connectionString)
+        {
+            var tablesName = new List<string>();
+
+            using (SqlConnection connection = new SqlConnection(connectionString.ToString()))
+            {
+                try
+                {
+                    connection.Open();
+                    ConnectionString = connectionString;
+
+                }catch(Exception e)
+                {
+                    throw new Exception("Connection string is not correct or cannot connect to DB server");
+                }
+
+                SqlCommand comm = new SqlCommand("select name from sys.databases", connection);
+
+                IDataReader reader = comm.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    tablesName.Add(reader[0].ToString());
+                }
+
+                reader.Close();
+
+            }
+
+            return tablesName;
         }
 
         public List<dynamic> GetTableData(string tableName, int offset, int count)
@@ -27,7 +76,14 @@ namespace SolverTakeHomeTest.Services
             {
                 var connectionString = _configuration.GetSection("someConnectionString").Value;
 
-                //"Server=MANI-DELL\\SQLEXPRESS;Initial Catalog=AdventureWorksDW;Trusted_Connection=True;MultipleActiveResultSets=true";//"Server=(localdb)\v11.0;Integrated Security=true";
+                if (string.IsNullOrEmpty(connectionString) && string.IsNullOrEmpty(ConnectionString))
+                {
+                    throw new Exception("Either inject the connection string to appSettings or use SetConnectionString endPoint to Set connectionString");
+                }
+                else
+                {
+                    connectionString = ConnectionString;
+                }
 
                 // Connect to SQL
                 using (SqlConnection connection = new SqlConnection(connectionString.ToString()))
